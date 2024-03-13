@@ -8,7 +8,6 @@ function App() {
   );
 
   const [data, setData] = useState<string[][]>(initialData);
-  // Dodanie stanu dla przechowywania ostatnio usuniętego wiersza
   const [deletedRow, setDeletedRow] = useState<{
     index: number;
     row: string[];
@@ -64,7 +63,6 @@ function App() {
   const handleDeleteRow = useCallback(
     (indexToDelete) => {
       const newData = data.filter((_, index) => index !== indexToDelete);
-      // Aktualizacja stanu z ostatnio usuniętym wierszem
       setDeletedRow({ index: indexToDelete, row: data[indexToDelete] });
       setData(newData);
       saveDataToLocalStorage(newData);
@@ -72,19 +70,25 @@ function App() {
     [data, saveDataToLocalStorage]
   );
 
-  // Funkcja przywracająca ostatnio usunięty wiersz
+  const handleDoubleClick = async (text: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+    } catch (error) {
+      console.error("Nie udało się skopiować tekstu: ", error);
+    }
+  };
+
   const handleRestoreLastDeletedRow = useCallback(() => {
     if (deletedRow) {
       const newData = [...data];
       newData.splice(deletedRow.index, 0, deletedRow.row);
       setData(newData);
       saveDataToLocalStorage(newData);
-      setDeletedRow(null); // Resetowanie stanu po przywróceniu wiersza
+      setDeletedRow(null);
     }
   }, [data, deletedRow, saveDataToLocalStorage]);
 
   const handleDeleteAllRows = useCallback(() => {
-    // Okienko alertu z pytaniem o potwierdzenie
     const isConfirmed = window.confirm(
       "Czy na pewno chcesz usunąć ten wiersz?"
     );
@@ -144,7 +148,14 @@ function App() {
                 <td>{index + 1}</td>
                 {row.map(
                   (cell: string, cellIndex: number) =>
-                    cellIndex !== 0 && <td key={cellIndex}>{cell}</td>
+                    cellIndex !== 0 && (
+                      <td
+                        onDoubleClick={() => handleDoubleClick(cell)}
+                        key={cellIndex}
+                      >
+                        {cell}
+                      </td>
+                    )
                 )}
                 <td style={{ textAlign: "center" }}>
                   <button
