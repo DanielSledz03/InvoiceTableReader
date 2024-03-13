@@ -31,7 +31,7 @@ function App() {
           .map((row) => {
             const columns = row.split("\t");
             return columns.length > 13
-              ? [columns[0], columns[5], columns[10], columns[13]]
+              ? [columns[0], columns[5], columns[10], columns[13], columns[15]]
               : null;
           })
           .filter((row): row is string[] => row !== null);
@@ -139,6 +139,7 @@ function App() {
               <th>Nabywca</th>
               <th>NIP</th>
               <th>Brutto</th>
+              <th>Płatność</th>
               <th>Czy usunąć?</th>
             </tr>
           </thead>
