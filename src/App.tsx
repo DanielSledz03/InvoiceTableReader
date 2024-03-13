@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import FileUpload from "./components/FileUpload/FileUpload.tsx";
 
 function App() {
@@ -12,6 +12,27 @@ function App() {
     index: number;
     row: string[];
   } | null>(null);
+  const [textareaValues, setTextareaValues] = useState<Record<string, string>>(
+    {}
+  );
+
+  useEffect(() => {
+    // Przy ładowaniu strony, wczytanie danych z localStorage dla każdego wiersza
+    const initialTextareaValues = data.reduce((acc, curr, index) => {
+      const key = curr[1]; // Zakładamy, że klucz znajduje się w drugiej kolumnie
+      const storedValue = localStorage.getItem(key);
+      if (storedValue) {
+        acc[key] = storedValue;
+      }
+      return acc;
+    }, {});
+    setTextareaValues(initialTextareaValues);
+  }, [data]);
+
+  const handleTextareaChange = (key, value) => {
+    setTextareaValues((prev) => ({ ...prev, [key]: value }));
+    localStorage.setItem(key, value); // Zapis do localStorage
+  };
 
   const saveDataToLocalStorage = useCallback((dataToSave) => {
     localStorage.setItem(localStorageDataKey, JSON.stringify(dataToSave));
@@ -31,7 +52,15 @@ function App() {
           .map((row) => {
             const columns = row.split("\t");
             return columns.length > 13
-              ? [columns[0], columns[5], columns[10], columns[13], columns[15]]
+              ? [
+                  columns[0],
+                  columns[1],
+                  columns[5],
+                  columns[2],
+                  columns[10],
+                  columns[13],
+                  columns[15],
+                ]
               : null;
           })
           .filter((row): row is string[] => row !== null);
@@ -93,12 +122,11 @@ function App() {
       "Czy na pewno chcesz usunąć ten wiersz?"
     );
     if (isConfirmed) {
+      localStorage.clear();
       setData([]);
       saveDataToLocalStorage([]);
     }
   }, [saveDataToLocalStorage]);
-
-  console.log(data.length);
 
   return (
     <div>
@@ -136,10 +164,13 @@ function App() {
           <thead>
             <tr>
               <th>LP</th>
+              <th>Numer</th>
               <th>Nabywca</th>
+              <th>Data</th>
               <th>NIP</th>
               <th>Brutto</th>
               <th>Płatność</th>
+              <th>Notatka</th>
               <th>Czy usunąć?</th>
             </tr>
           </thead>
@@ -158,6 +189,14 @@ function App() {
                       </td>
                     )
                 )}
+                <td style={{ textAlign: "center" }}>
+                  <textarea
+                    value={textareaValues[row[1]] || ""} // Ustawienie wartości z stanu
+                    onChange={(e) =>
+                      handleTextareaChange(row[1], e.target.value)
+                    }
+                  ></textarea>
+                </td>
                 <td style={{ textAlign: "center" }}>
                   <button
                     className="button"
