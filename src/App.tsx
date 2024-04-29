@@ -17,9 +17,8 @@ function App() {
   );
 
   useEffect(() => {
-    // Przy ładowaniu strony, wczytanie danych z localStorage dla każdego wiersza
-    const initialTextareaValues = data.reduce((acc, curr, index) => {
-      const key = curr[1]; // Zakładamy, że klucz znajduje się w drugiej kolumnie
+    const initialTextareaValues = data.reduce((acc, curr) => {
+      const key = curr[1];
       const storedValue = localStorage.getItem(key);
       if (storedValue) {
         acc[key] = storedValue;
@@ -40,7 +39,7 @@ function App() {
 
   const parseFiles = useCallback(
     (files: FileList) => {
-      const tempData = [];
+      const tempData: string[][] = [];
       let filesProcessed = 0;
 
       const processFileContent = (text: string): string[][] => {
@@ -191,7 +190,7 @@ function App() {
                 )}
                 <td style={{ textAlign: "center" }}>
                   <textarea
-                    value={textareaValues[row[1]] || ""} // Ustawienie wartości z stanu
+                    value={textareaValues[row[1]] || ""}
                     onChange={(e) =>
                       handleTextareaChange(row[1], e.target.value)
                     }

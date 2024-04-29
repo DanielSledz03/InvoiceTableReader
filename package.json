@@ -1,5 +1,5 @@
 {
-  "name": "faktury-bosch",
+  "name": "displaying-invoices",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
